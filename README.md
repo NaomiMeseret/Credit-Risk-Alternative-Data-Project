@@ -206,7 +206,5 @@ pip install -r requirements.txt
 - [Credit Risk - Corporate Finance Institute](https://corporatefinanceinstitute.com/resources/commercial-lending/credit-risk/)
 - [What is Credit Risk?](https://www.risk-officer.com/Credit_Risk.htm)
 
-## License
 
-[To be determined]
 
