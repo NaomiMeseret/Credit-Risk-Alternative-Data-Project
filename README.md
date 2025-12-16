@@ -16,7 +16,6 @@ The key innovation lies in transforming behavioral data into a predictive risk s
 
 ## Project Objectives
 
-Your job is to build a product that does the following:
 
 1. Defines a proxy variable that can be used to categorize users as high risk (bad) or low risk (good)
 2. Select observable features that are good predictors (have high correlation) of the default variable defined in 1)
