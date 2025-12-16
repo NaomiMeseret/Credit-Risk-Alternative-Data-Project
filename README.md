@@ -110,6 +110,7 @@ In traditional credit scoring, default labels are derived from actual loan repay
 However, relying on proxy variables introduces several significant risks:
 
 - **Misclassification Risk**: A proxy variable is an approximation of true credit risk. If the proxy is poorly designed, we may incorrectly label customers as high or low risk, leading to:
+
   - **False Positives**: Rejecting creditworthy customers, resulting in lost revenue and customer dissatisfaction
   - **False Negatives**: Approving risky customers, leading to higher default rates and financial losses
 
@@ -128,6 +129,7 @@ To mitigate these risks, we must carefully design the proxy variable using domai
 **Simple, Interpretable Models (Logistic Regression with Weight of Evidence):**
 
 **Advantages:**
+
 - **Regulatory Compliance**: Logistic regression models are easily explainable. Each feature's contribution to the final score can be precisely quantified, making it straightforward to explain decisions to regulators, auditors, and customers. This aligns perfectly with Basel II's emphasis on transparency and documentation.
 
 - **Stability and Reliability**: Simple models are less prone to overfitting and tend to be more stable across different data distributions. This is crucial in financial contexts where model stability directly impacts business operations.
@@ -139,6 +141,7 @@ To mitigate these risks, we must carefully design the proxy variable using domai
 - **Lower Computational Cost**: Simple models require less computational resources for training and inference, reducing operational costs.
 
 **Disadvantages:**
+
 - **Limited Predictive Power**: Logistic regression assumes linear relationships and cannot capture complex non-linear interactions between features. This may result in lower predictive accuracy, potentially leaving money on the table or misclassifying edge cases.
 
 - **Feature Engineering Burden**: To achieve reasonable performance, extensive feature engineering is required. This increases development time and complexity, even if the final model is simple.
@@ -148,6 +151,7 @@ To mitigate these risks, we must carefully design the proxy variable using domai
 **Complex, High-Performance Models (Gradient Boosting):**
 
 **Advantages:**
+
 - **Superior Predictive Performance**: Gradient boosting models can capture complex non-linear relationships and feature interactions automatically, often achieving significantly higher accuracy than linear models. This can directly translate to better risk assessment and reduced losses.
 
 - **Automatic Feature Interaction**: These models can discover complex patterns in data that would be difficult to engineer manually, potentially uncovering valuable signals in alternative data.
@@ -155,7 +159,9 @@ To mitigate these risks, we must carefully design the proxy variable using domai
 - **Handles Non-Linearity**: Alternative data from eCommerce platforms often contains non-linear patterns (e.g., spending behavior thresholds, seasonal effects). Gradient boosting can model these naturally.
 
 **Disadvantages:**
+
 - **Interpretability Challenges**: Gradient boosting models are "black boxes." Understanding why a specific customer received a particular score is difficult, which creates challenges for:
+
   - Regulatory approval and audits
   - Customer communication (especially for adverse actions)
   - Model validation and monitoring
@@ -180,6 +186,25 @@ For this project, given the regulatory context and the need for transparency, we
 
 The ultimate choice depends on balancing regulatory requirements, business performance needs, and available resources for model maintenance and validation.
 
+## EDA Visuals 📊🖼️
+
+Below are key visual summaries from the exploratory analysis:
+
+- Correlation heatmap (Amount vs Value)  
+  ![Correlation Heatmap](notebooks/eda_outputs/correlation_heatmap.png)
+
+- Numerical distributions (skewness and tails)  
+  ![Numerical Distributions](notebooks/eda_outputs/numerical_distributions.png)
+
+- Categorical distributions (ProductCategory, ChannelId)  
+  ![Categorical Distributions](notebooks/eda_outputs/Distribution%20of%20Categorical%20Features.png)
+
+- Pie charts for key categorical features  
+  ![Pie Charts](notebooks/eda_outputs/PIE%20CHARTS%20FOR%20KEY%20CATEGORICAL%20FEATURES.png)
+
+- Box plots for outlier detection  
+  ![Box Plots](notebooks/eda_outputs/BOX%20PLOTS%20FOR%20OUTLIER%20DETECTION%20.png)
+
 ## Getting Started
 
 ### Installation
@@ -193,9 +218,39 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Usage
+### End-to-End Usage
 
-[To be updated as project progresses]
+1. **Process data & create proxy target**
+   ```bash
+   python src/process_data.py --raw_path data/raw/data.csv --output_path data/processed/processed.csv
+   ```
+2. **Train model with MLflow logging & save local artifact**
+   ```bash
+   python src/train.py data/processed/processed.csv is_high_risk logistic
+   # local model saved to models/best_model; MLflow run logged to default store
+   ```
+3. **Run API (uses MODEL_URI env or local fallback)**
+   ```bash
+   MODEL_URI=models:/credit-risk-model/Production uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+   # or rely on local models/best_model if MODEL_URI is not set
+   ```
+4. **Sample predict request (JSON)**
+   ```json
+   {
+     "customer_id": "C123",
+     "features": {
+       "ProductCategory": "financial_services",
+       "ChannelId": "3",
+       "Amount": 1500,
+       "Value": 1500,
+       "PricingStrategy": 2
+     }
+   }
+   ```
+5. **Run tests**
+   ```bash
+   pytest -v
+   ```
 
 ## References
 
@@ -205,6 +260,4 @@ pip install -r requirements.txt
 - [How to Develop a Credit Risk Model and Scorecard](https://towardsdatascience.com/how-to-develop-a-credit-risk-model-and-scorecard-91335fc01f03)
 - [Credit Risk - Corporate Finance Institute](https://corporatefinanceinstitute.com/resources/commercial-lending/credit-risk/)
 - [What is Credit Risk?](https://www.risk-officer.com/Credit_Risk.htm)
-
-
 
