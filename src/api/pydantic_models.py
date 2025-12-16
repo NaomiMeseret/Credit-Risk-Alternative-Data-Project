@@ -3,29 +3,28 @@ Pydantic models for API request/response validation.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, Dict, Any
 
 
-class TransactionRequest(BaseModel):
-    """Request model for transaction data."""
-    transaction_id: str
+class PredictRequest(BaseModel):
+    """
+    Request model for prediction.
+    Accepts dynamic feature set; only enforces customer_id for tracing.
+    """
     customer_id: str
-    amount: float
-    # Additional fields will be added based on model requirements
+    features: Dict[str, Any]
 
 
-class CreditRiskPrediction(BaseModel):
+class PredictResponse(BaseModel):
     """Response model for credit risk prediction."""
     customer_id: str
     risk_probability: float = Field(..., ge=0.0, le=1.0, description="Risk probability between 0 and 1")
-    credit_score: int = Field(..., ge=300, le=850, description="Credit score between 300 and 850")
-    risk_category: str = Field(..., description="Risk category: 'low', 'medium', or 'high'")
+    risk_category: str
+    model_name: Optional[str] = None
+    model_version: Optional[str] = None
 
 
-class LoanRecommendation(BaseModel):
-    """Response model for loan amount and duration recommendation."""
-    customer_id: str
-    recommended_amount: float
-    recommended_duration_months: int
-    confidence: float
+class HealthResponse(BaseModel):
+    status: str = "ok"
+    model_loaded: bool = True
 
